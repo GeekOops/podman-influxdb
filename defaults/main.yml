@@ -1,0 +1,15 @@
+---
+# defaults file for podman-influxdb
+
+influxdb_container_image: 'docker.io/library/influxdb:2.7'
+influxdb_config_dir: '/etc/influxdb'
+influxdb_data_dir: '/srv/influxdb'
+influxdb_service_name: 'influxdb'
+influxdb_auto_update: true
+influxdb_container_network: 'podman'
+influxdb_container_ip: ''
+
+influxdb_mem_limit: '512M'
+influxdb_publish:
+  - '[::]:8086:8086/tcp'
+  - '8086:8086/tcp'

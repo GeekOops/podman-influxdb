@@ -1,0 +1,7 @@
+---
+# handlers file for podman-influxdb
+
+- name: restart influxdb
+  systemd:
+    name: "{{influxdb_service_name}}"
+    state: restarted

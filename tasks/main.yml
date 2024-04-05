@@ -1,0 +1,48 @@
+---
+# tasks file for influxdb
+
+- name: Ensure data directory exists
+  file:
+    state: directory
+    path: "{{influxdb_data_dir}}"
+    owner: '1000'
+    group: '1000'
+    mode: '0750'
+
+- name: Ensure config directory exists
+  file:
+    state: directory
+    path: "{{influxdb_config_dir}}"
+    owner: '1000'
+    group: '1000'
+    mode: '0750'
+
+- name: Ensure configuration is up-to-date
+  template:
+    src: conf.j2
+    dest: "{{influxdb_config_dir}}/influxdb.conf"
+    owner: '1000'
+    group: '1000'
+    mode: '0750'
+
+- name: Ensure systemd unit is up-to-date
+  template:
+    src: service.j2
+    dest: '/etc/systemd/system/{{influxdb_service_name}}.service'
+    owner: root
+    group: root
+    mode: '0644'
+    force: true
+  register: influxdb_systemd_unit_file
+  notify: restart influxdb
+
+- name: Reload systemd-daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: influxdb_systemd_unit_file.changed
+
+- name: Ensure systemd unit is enabled and stared
+  systemd:
+    name: "{{influxdb_service_name}}.service"
+    state: started
+    enabled: true

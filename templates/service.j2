@@ -1,0 +1,47 @@
+[Unit]
+Description=influxdb podman container
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=%t/containers
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Restart=on-failure
+TimeoutStopSec=70
+TimeoutStartSec=300
+ExecStartPre=/bin/rm -f %t/%n.ctr-id
+ExecStart=/usr/bin/podman run \
+	--cidfile=%t/%n.ctr-id \
+	--cgroups=no-conmon \
+	--rm \
+	--sdnotify=conmon \
+	--replace \
+	-d \
+	--name {{influxdb_service_name}} \
+	-v {{influxdb_data_dir}}:/var/lib/influxdb2:Z \
+	-v {{influxdb_config_dir}}:/etc/influxdb2:ro,Z \
+{% if influxdb_container_network != "" %}
+	--network {{influxdb_container_network}} \
+{% endif %}
+{% if influxdb_container_ip != "" %}
+	--ip {{influxdb_container_ip}} \
+{% endif %}
+{% if influxdb_mem_limit != "" %}
+	--memory {{influxdb_mem_limit}} \
+{% endif %}
+{%for publish in influxdb_publish %}
+	--publish {{publish}} \
+{% endfor %}
+	--health-cmd='curl -fLq localhost:8086/metrics' --health-interval=30s --health-start-period=1m --health-timeout=30s \
+	--read-only --tmpfs=/run --tmpfs=/tmp \
+{% if influxdb_auto_update == true %}
+	--label io.containers.autoupdate=image \
+{% endif %}
+	{{influxdb_container_image}}
+ExecStop=/usr/bin/podman stop --ignore --cidfile=%t/%n.ctr-id
+ExecStopPost=/usr/bin/podman rm -f --ignore --cidfile=%t/%n.ctr-id
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=default.target

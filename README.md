@@ -13,7 +13,7 @@ Basic ansible, no further dependencies.
 | `influxdb_container_image` | 'docker.io/library/influxdb:2.7' | Container image to be used |
 | `influxdb_config_dir` | `'/etc/influxdb'` | Configuration directory on the host |
 | `influxdb_data_dir` | `'/srv/influxdb'` | Data directory on the host |
-| `influxdb_service_name` | `'influxdb' | Service name (systemd and container) |
+| `influxdb_service_name` | `'influxdb'` | Service name (systemd and container) |
 | `influxdb_auto_update` | `true` | If true, podman auto update will be enabled for the resulting container |
 | `influxdb_container_network` | `'podman'` | podman network to be used |
 | `influxdb_container_ip` |  | If defined, set the following ip for the container |
